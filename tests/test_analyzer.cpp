@@ -1,7 +1,7 @@
-#include "tts/audio/analyzer.hpp"
-
+// tests/test_analyzer.cpp
 #include <cmath>
 #include <iostream>
+#include "tts/audio/analyzer.hpp"
 
 using AnalyzerFunction = bool (*)(const float*, int, float*);
 

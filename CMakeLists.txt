@@ -10,13 +10,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXSTENSIONS OFF)
 
-add_executable(tts-engine
-    src/main.cpp
+add_library(tts_audio STATIC
     src/audio/analyzer.cpp
 )
 
-target_include_directories(tts-engine PRIVATE
+target_include_directories(tts_audio PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_compile_options(tts_audio PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+add_executable(tts-engine
+    src/main.cpp
+)
+
+target_link_libraries(tts-engine PRIVATE 
+    tts_audio
 )
 
 target_compile_options(tts-engine PRIVATE
@@ -29,11 +41,10 @@ enable_testing()
 
 add_executable(test-analyzer
     tests/test_analyzer.cpp
-    src/audio/analyzer.cpp
 )
 
-target_include_directories(test-analyzer PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_link_libraries(test-analyzer PRIVATE
+    tts_audio
 )
 
 target_compile_options(test-analyzer PRIVATE
