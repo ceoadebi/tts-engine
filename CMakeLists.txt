@@ -12,6 +12,7 @@ set(CMAKE_CXX_EXSTENSIONS OFF)
 
 add_library(tts_audio STATIC
     src/audio/analyzer.cpp
+    src/audio/audio_buffer.cpp
 )
 
 target_include_directories(tts_audio PUBLIC
@@ -37,8 +38,10 @@ target_compile_options(tts-engine PRIVATE
     -Wpedantic
 )
 
+# TESTING 
 enable_testing()
 
+# TESTING ANALYZER 
 add_executable(test-analyzer
     tests/test_analyzer.cpp
 )
@@ -53,8 +56,26 @@ target_compile_options(test-analyzer PRIVATE
     -Wpedantic
 )
 
+#TESTING AUDIOBUFFER
 add_test(
     NAME AudioAnalyzerTests
     COMMAND test-analyzer
+)
+
+add_executable(test-audio-buffer 
+    tests/test_audio_buffer.cpp
+)
+
+target_link_libraries(test-audio-buffer PRIVATE
+    tts_audio
+)
+
+add_test(
+    NAME AudioBufferTests
+    COMMAND test-audio-buffer
+)
+
+target_include_directories(test-analyzer PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
