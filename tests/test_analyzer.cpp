@@ -1,146 +1,236 @@
-// tests/test_analyzer.cpp
-#include <cmath>
-#include <iostream>
+
 #include "tts/audio/analyzer.hpp"
 
+#include <cmath>
+#include <iostream>
+
+// Function pointer type for analyzer functions
 using AnalyzerFunction = bool (*)(const float*, int, float*);
 
+// Compare floating-point values within a tolerance
+bool approxEqual(float actual, float expected) {
+    constexpr float tolerance = 0.00001f;
+    return std::fabs(actual - expected) < tolerance;
+}
+
+// Track test results
 int testsPassed = 0;
 int testsFailed = 0;
 
 void check(bool condition, const char* testName) {
     if (condition) {
-        std::cout << "PASS: " << testName << '\n';
+        std::cout << "[PASS] " << testName << '\n';
         ++testsPassed;
     } else {
-        std::cerr << "FAIL: " << testName << '\n';
+        std::cerr << "[FAIL] " << testName << '\n';
         ++testsFailed;
     }
 }
 
-bool approximatelyEqual(float actual, float expected) {
-    return std::fabs(actual - expected) < 0.00001f;
-}
-
-void testValidInput(
-    AnalyzerFunction function,
-    const float* samples,
-    int count,
-    float expected,
-    const char* testName
-) {
-    float result = 123.0f;
-
-    bool success = function(samples, count, &result);
-
-    check(
-        success && approximatelyEqual(result, expected),
-        testName
-    );
-}
-
-void testInvalidInput(
-    AnalyzerFunction function,
-    const float* samples,
-    int count,
-    bool nullResult,
-    const char* testName
-) {
-    float result = 123.0f;
-    float* resultPointer = nullResult ? nullptr : &result;
-
-    bool success = function(samples, count, resultPointer);
-
-    check(
-        !success && result == 123.0f,
-        testName
-    );
-}
-
-void runAnalyzerTests(
+// Test one analyzer function against eight cases
+void testAnalyzer(
     AnalyzerFunction function,
     const char* functionName,
-    float normalExpected,
-    float negativeExpected,
-    float positiveExpected
+    float expectedMixed,
+    float expectedNegative,
+    float expectedPositive,
+    float expectedSingle
 ) {
-    const float normal[] = {0.2f, -0.5f, 0.8f, -0.3f, 0.1f};
-    const float negative[] = {-0.8f, -0.5f, -0.2f};
-    const float positive[] = {0.3f, 0.7f, 0.1f};
-    const float single[] = {0.5f};
+    float result{};
 
-    std::cout << "\nTesting " << functionName << '\n';
+    // Test 1: Mixed positive and negative values
+    const float mixed[] = {0.2f, -0.5f, 0.8f, -0.3f, 0.1f};
 
-    testValidInput(
-        function, normal, 5, normalExpected,
-        "Normal samples"
-    );
+    result = -99.0f;
+    bool success = function(mixed, 5, &result);
 
-    testValidInput(
-        function, negative, 3, negativeExpected,
-        "All negative samples"
-    );
+    check(success && approxEqual(result, expectedMixed),
+          functionName);
 
-    testValidInput(
-        function, positive, 3, positiveExpected,
-        "All positive samples"
-    );
+    // Test 2: All negative samples
+    const float negative[] = {-0.2f, -0.5f, -0.8f};
 
-    testValidInput(
-        function, single, 1, 0.5f,
-        "Single sample"
-    );
+    result = -99.0f;
+    success = function(negative, 3, &result);
 
-    testInvalidInput(
-        function, nullptr, 5, false,
-        "Null sample pointer"
-    );
+    check(success && approxEqual(result, expectedNegative),
+          "All negative samples");
 
-    testInvalidInput(
-        function, normal, 5, true,
-        "Null result pointer"
-    );
+    // Test 3: All positive samples
+    const float positive[] = {0.2f, 0.5f, 0.8f};
 
-    testInvalidInput(
-        function, normal, 0, false,
-        "Zero sample count"
-    );
+    result = -99.0f;
+    success = function(positive, 3, &result);
 
-    testInvalidInput(
-        function, normal, -1, false,
-        "Negative sample count"
-    );
+    check(success && approxEqual(result, expectedPositive),
+          "All positive samples");
+
+    // Test 4: Single sample
+    const float single[] = {-0.5f};
+
+    result = -99.0f;
+    success = function(single, 1, &result);
+
+    check(success && approxEqual(result, expectedSingle),
+          "Single sample");
+
+    // Test 5: Null samples pointer
+    result = -99.0f;
+    success = function(nullptr, 3, &result);
+
+    check(!success && result == -99.0f,
+          "Null samples pointer");
+
+    // Test 6: Null result pointer
+    success = function(mixed, 5, nullptr);
+
+    check(!success,
+          "Null result pointer");
+
+    // Test 7: Zero sample count
+    result = -99.0f;
+    success = function(mixed, 0, &result);
+
+    check(!success && result == -99.0f,
+          "Zero sample count");
+
+    // Test 8: Negative sample count
+    result = -99.0f;
+    success = function(mixed, -1, &result);
+
+    check(!success && result == -99.0f,
+          "Negative sample count");
 }
 
 int main() {
-    runAnalyzerTests(
+    std::cout << "=== Audio Analyzer Tests ===\n\n";
+
+    // ----------------------------------------
+    // Maximum Sample Tests
+    // ----------------------------------------
+
+    std::cout << "--- findMaxSample ---\n";
+
+    testAnalyzer(
         findMaxSample,
-        "findMaxSample",
+        "Mixed samples - Max",
         0.8f,
         -0.2f,
-        0.7f
+        0.8f,
+        -0.5f
     );
 
-    runAnalyzerTests(
+    // ----------------------------------------
+    // Minimum Sample Tests
+    // ----------------------------------------
+
+    std::cout << "\n--- findMinSample ---\n";
+
+    testAnalyzer(
         findMinSample,
-        "findMinSample",
+        "Mixed samples - Min",
         -0.5f,
         -0.8f,
-        0.1f
+        0.2f,
+        -0.5f
     );
 
-    runAnalyzerTests(
+    // ----------------------------------------
+    // Mean Absolute Amplitude Tests
+    // ----------------------------------------
+
+    std::cout << "\n--- calculateMeanAmplitude ---\n";
+
+    testAnalyzer(
         calculateMeanAmplitude,
-        "calculateMeanAmplitude",
+        "Mixed samples - Mean",
         0.38f,
         0.5f,
-        1.1f / 3.0f
+        0.5f,
+        0.5f
     );
 
-    std::cout << "\n--------------------\n";
-    std::cout << "Passed: " << testsPassed << '\n';
-    std::cout << "Failed: " << testsFailed << '\n';
+    // ----------------------------------------
+    // RMS Amplitude Tests
+    // ----------------------------------------
 
-    return testsFailed == 0 ? 0 : 1;
+    std::cout << "\n--- calculateRMS ---\n";
+
+    // RMS of mixed samples:
+    // sqrt((0.04 + 0.25 + 0.64 + 0.09 + 0.01) / 5)
+    // = sqrt(0.206)
+    testAnalyzer(
+        calculateRMS,
+        "Mixed samples - RMS",
+        std::sqrt(0.206f),
+        std::sqrt(0.31f),
+        std::sqrt(0.31f),
+        0.5f
+    );
+
+    // Additional RMS-specific test cases
+
+    float result{};
+
+    // Constant positive samples
+    const float constantPositive[] = {
+        0.8f, 0.8f, 0.8f, 0.8f
+    };
+
+    bool success = calculateRMS(
+        constantPositive, 4, &result
+    );
+
+    check(success && approxEqual(result, 0.8f),
+          "RMS - Constant positive");
+
+    // Mixed silence and signal
+    const float mixedSilence[] = {
+        0.0f, 0.0f, 0.0f, 0.8f
+    };
+
+    result = -99.0f;
+    success = calculateRMS(mixedSilence, 4, &result);
+
+    check(success && approxEqual(result, 0.4f),
+          "RMS - Mixed silence");
+
+    // Constant negative samples
+    const float constantNegative[] = {
+        -0.5f, -0.5f
+    };
+
+    result = -99.0f;
+    success = calculateRMS(constantNegative, 2, &result);
+
+    check(success && approxEqual(result, 0.5f),
+          "RMS - Constant negative");
+
+    // All silence
+    const float silence[] = {
+        0.0f, 0.0f
+    };
+
+    result = -99.0f;
+    success = calculateRMS(silence, 2, &result);
+
+    check(success && approxEqual(result, 0.0f),
+          "RMS - Silence");
+
+    // ----------------------------------------
+    // Final Results
+    // ----------------------------------------
+
+    std::cout << "\n============================\n";
+    std::cout << "Tests passed: " << testsPassed << '\n';
+    std::cout << "Tests failed: " << testsFailed << '\n';
+
+    if (testsFailed != 0) {
+        std::cerr << "Audio Analyzer tests failed!\n";
+        return 1;
+    }
+
+    std::cout << "All Audio Analyzer tests passed!\n";
+    return 0;
 }
 

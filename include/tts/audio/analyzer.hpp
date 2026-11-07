@@ -20,5 +20,11 @@ bool findMinSample(const float* samples, int count, float* result);
 */
 bool calculateMeanAmplitude(const float* samples, int count, float* result);
 
-#endif
+/**
+* Takes 3 inputs: pointer to audio samples, count, pointer to result
+* Returns root mean squared amplitude 
+*/
+bool calculateRMS(const float* samples, int count, float* result);
+
+#endif 
 

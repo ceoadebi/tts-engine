@@ -1,6 +1,6 @@
 // include/tts/audio/audio_buffer.hpp
-#ifndef TTS_AUDIO_AUDIO_BUFFER
-#define TTS_AUDIO_AUDIO_BUFFER
+#ifndef TTS_AUDIO_AUDIO_BUFFER_HPP
+#define TTS_AUDIO_AUDIO_BUFFER_HPP
 
 #include <cstddef>
 #include <memory>
@@ -20,4 +20,4 @@ public:
     std::size_t size() const;
 };
 
-#endif
+#endif 
