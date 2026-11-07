@@ -24,6 +24,7 @@ add_library(tts_audio STATIC
     src/audio/audio_buffer.cpp
     src/audio/pcm.cpp
     src/audio/wav_writer.cpp
+    src/audio/sine_generator.cpp
 )
 
 # Public headers are available to all
@@ -123,7 +124,6 @@ add_test(
 )
 
 # WAV WRITER TESTS
-
 add_executable(test-wav-writer tests/test_wav_writer.cpp)
 
 target_link_libraries(test-wav-writer PRIVATE tts_audio)
@@ -135,3 +135,28 @@ target_compile_options(test-wav-writer PRIVATE
 )
 
 add_test(NAME WavWriterTests COMMAND test-wav-writer)
+
+#SINE WAVE GENERATOR TESTS
+add_executable(test-sine-generator
+    tests/test_sine_generator.cpp
+)
+
+target_link_libraries(test-sine-generator PRIVATE tts_audio)
+
+target_compile_options(test-sine-generator PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+
+add_test(
+    NAME SineGeneratorTests
+    COMMAND test-sine-generator
+)
+
+add_executable(day06-sine-wave 
+    experiments/day06_sine_wave.cpp
+)
+
+target_link_libraries(day06-sine-wave PRIVATE tts_audio)
+
