@@ -25,6 +25,7 @@ add_library(tts_audio STATIC
     src/audio/pcm.cpp
     src/audio/wav_writer.cpp
     src/audio/sine_generator.cpp
+    src/audio/envelope.cpp
 )
 
 # Public headers are available to all
@@ -160,3 +161,32 @@ add_executable(day06-sine-wave
 
 target_link_libraries(day06-sine-wave PRIVATE tts_audio)
 
+#ENVELOPE TESTS
+add_executable(test-envelope
+    tests/test_envelope.cpp
+)
+
+target_link_libraries(test-envelope PRIVATE tts_audio)
+
+target_compile_options(test-envelope PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+
+add_test(
+    NAME EnvelopeTests
+    COMMAND test-envelope
+)
+
+add_executable(day07-envelope
+    experiments/day07_envelope.cpp
+)
+
+target_link_libraries(day07-envelope PRIVATE tts_audio)
+
+target_compile_options(day07-envelope PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
