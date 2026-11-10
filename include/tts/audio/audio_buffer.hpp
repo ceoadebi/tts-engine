@@ -17,6 +17,7 @@ public:
     AudioBuffer& operator=(AudioBuffer&& other) noexcept;
 
     float* data();
+    const float* data() const;
     std::size_t size() const;
 };
 

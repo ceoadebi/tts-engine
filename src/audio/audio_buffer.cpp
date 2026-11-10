@@ -22,6 +22,10 @@ float* AudioBuffer::data() {
     return m_data.get();
 }
 
+const float* AudioBuffer::data() const {
+    return m_data.get();
+}
+
 std::size_t AudioBuffer::size() const {
     return m_size;
 }

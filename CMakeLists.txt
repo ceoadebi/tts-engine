@@ -26,6 +26,7 @@ add_library(tts_audio STATIC
     src/audio/wav_writer.cpp
     src/audio/sine_generator.cpp
     src/audio/envelope.cpp
+    src/audio/mixer.cpp
 )
 
 # Public headers are available to all
@@ -190,3 +191,24 @@ target_compile_options(day07-envelope PRIVATE
     -Wextra
     -Wpedantic
 )
+
+#MIXER TESTS
+add_executable(test-mixer
+    tests/test_mixer.cpp
+)
+
+target_link_libraries(test-mixer PRIVATE tts_audio)
+
+target_compile_options(test-mixer PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+
+add_test(
+    NAME MixerTests
+    COMMAND test-mixer
+)
+add_executable(day08-mixing experiments/day08_mixing.cpp)
+target_link_libraries(day08-mixing PRIVATE tts_audio)
+
