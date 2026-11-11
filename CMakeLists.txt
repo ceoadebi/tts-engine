@@ -27,6 +27,7 @@ add_library(tts_audio STATIC
     src/audio/sine_generator.cpp
     src/audio/envelope.cpp
     src/audio/mixer.cpp
+    src/audio/normalizer.cpp
 )
 
 # Public headers are available to all
@@ -212,3 +213,26 @@ add_test(
 add_executable(day08-mixing experiments/day08_mixing.cpp)
 target_link_libraries(day08-mixing PRIVATE tts_audio)
 
+#NORMALIZER TESTS
+add_executable(test-normalizer
+    tests/test_normalizer.cpp
+)
+
+target_link_libraries(test-normalizer PRIVATE tts_audio)
+
+target_compile_options(test-normalizer PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+
+add_test(
+    NAME NormalizerTests
+    COMMAND test-normalizer
+)
+
+add_executable(day09-normalization
+    experiments/day09_normalization.cpp
+)
+
+target_link_libraries(day09-normalization PRIVATE tts_audio)
