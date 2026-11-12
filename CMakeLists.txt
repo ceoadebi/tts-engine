@@ -28,6 +28,7 @@ add_library(tts_audio STATIC
     src/audio/envelope.cpp
     src/audio/mixer.cpp
     src/audio/normalizer.cpp
+    src/audio/decibels.cpp
 )
 
 # Public headers are available to all
@@ -236,3 +237,44 @@ add_executable(day09-normalization
 )
 
 target_link_libraries(day09-normalization PRIVATE tts_audio)
+
+#DECIBELS TESTS
+add_executable(test-decibels
+    tests/test_decibels.cpp
+)
+
+target_link_libraries(test-decibels PRIVATE tts_audio)
+
+target_compile_options(test-decibels PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+
+add_test(
+    NAME DecibelsTests
+    COMMAND test-decibels
+)
+add_executable(day10-audio-levels
+    experiments/day10_audio_levels.cpp
+)
+
+target_link_libraries(day10-audio-levels PRIVATE tts_audio)
+
+target_compile_options(day10-audio-levels PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+add_executable(day10-analyzer-integration
+    experiments/day10_analyzer_integration.cpp
+)
+
+target_link_libraries(day10-analyzer-integration PRIVATE tts_audio)
+
+target_compile_options(day10-analyzer-integration PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+
