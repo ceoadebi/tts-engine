@@ -29,6 +29,7 @@ add_library(tts_audio STATIC
     src/audio/mixer.cpp
     src/audio/normalizer.cpp
     src/audio/decibels.cpp
+    src/audio/gain.cpp
 )
 
 # Public headers are available to all
@@ -278,3 +279,10 @@ target_compile_options(day10-analyzer-integration PRIVATE
     -Wpedantic
 )
 
+#GAIN TESTS
+add_executable(test-gain tests/test_gain.cpp)
+target_link_libraries(test-gain PRIVATE tts_audio)
+add_test(NAME GainTests COMMAND test-gain)
+
+add_executable(day11-gain experiments/day11_gain.cpp)
+target_link_libraries(day11-gain PRIVATE tts_audio)
